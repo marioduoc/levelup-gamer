@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de usuario | Level-Up Gamer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a href="index.html" class="logo">LEVEL<span>UP</span> GAMER</a>
+      <nav class="main-nav" aria-label="Navegación principal">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="productos.html">Productos</a></li>
+          <li><a href="nosotros.html">Nosotros</a></li>
+          <li><a href="blogs.html">Blogs</a></li>
+          <li><a href="contacto.html">Contacto</a></li>
+        </ul>
+      </nav>
+      <div class="nav-actions">
+        <a href="login.html" class="btn btn-ghost">Iniciar sesión</a>
+        <a href="carrito.html" class="cart-link" aria-label="Ver carrito">
+          🛒 <span id="cart-count" class="cart-count">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <form id="form-registro" class="form-card" novalidate>
+      <h1 class="section-title" style="margin-top:0">Crear cuenta</h1>
+
+      <div class="form-group">
+        <label for="run">RUN (sin puntos ni guión, ej: 19011022K)</label>
+        <input type="text" id="run" name="run" maxlength="9" required>
+        <span class="error-msg"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="nombre">Nombre</label>
+        <input type="text" id="nombre" name="nombre" maxlength="50" required>
+        <span class="error-msg"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="apellidos">Apellidos</label>
+        <input type="text" id="apellidos" name="apellidos" maxlength="100" required>
+        <span class="error-msg"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="correo">Correo electrónico</label>
+        <input type="email" id="correo" name="correo" maxlength="100" required>
+        <span class="error-msg"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Contraseña (4 a 10 caracteres)</label>
+        <input type="password" id="password" name="password" maxlength="10" required>
+        <span class="error-msg"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="fecha-nacimiento">Fecha de nacimiento</label>
+        <input type="date" id="fecha-nacimiento" name="fecha-nacimiento">
+        <span class="error-msg"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="region">Región</label>
+        <select id="region" name="region" required>
+          <option value="">Selecciona una región</option>
+        </select>
+        <span class="error-msg"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="comuna">Comuna</label>
+        <select id="comuna" name="comuna" required>
+          <option value="">Primero selecciona una región</option>
+        </select>
+        <span class="error-msg"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="direccion">Dirección</label>
+        <input type="text" id="direccion" name="direccion" maxlength="300" required>
+        <span class="error-msg"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="codigo-referido">Código de referido (opcional)</label>
+        <input type="text" id="codigo-referido" name="codigo-referido">
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width:100%">Registrarme</button>
+      <p id="registro-exito" style="color:var(--verde-neon); margin-top:1rem; display:none;">
+        ¡Cuenta creada con éxito!
+      </p>
+    </form>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-wrap">
+      <div>
+        <p class="logo">LEVEL<span>UP</span> GAMER</p>
+        <p>La tienda online líder en productos para gamers en Chile.</p>
+      </div>
+    </div>
+    <p class="copyright">© 2026 Level-Up Gamer. Todos los derechos reservados.</p>
+  </footer>
+
+  <script src="js/products.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/regiones.js"></script>
+  <script src="js/validaciones.js"></script>
+  <script src="js/usuarios.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      inicializarSelectorRegiones();
+
+      const form = document.getElementById("form-registro");
+      const run = document.getElementById("run");
+      const nombre = document.getElementById("nombre");
+      const apellidos = document.getElementById("apellidos");
+      const correo = document.getElementById("correo");
+      const password = document.getElementById("password");
+      const fechaNacimiento = document.getElementById("fecha-nacimiento");
+      const region = document.getElementById("region");
+      const comuna = document.getElementById("comuna");
+      const direccion = document.getElementById("direccion");
+
+      run.addEventListener("input", () => {
+        if (!validarRun(run.value)) {
+          mostrarError(run, "RUN inválido. Formato: 19011022K (sin puntos ni guión).");
+        } else {
+          limpiarError(run);
+        }
+      });
+
+      nombre.addEventListener("input", () => {
+        if (nombre.value.trim() === "" || nombre.value.length > 50) {
+          mostrarError(nombre, "El nombre es requerido (máx. 50 caracteres).");
+        } else {
+          limpiarError(nombre);
+        }
+      });
+
+      apellidos.addEventListener("input", () => {
+        if (apellidos.value.trim() === "" || apellidos.value.length > 100) {
+          mostrarError(apellidos, "Los apellidos son requeridos (máx. 100 caracteres).");
+        } else {
+          limpiarError(apellidos);
+        }
+      });
+
+      correo.addEventListener("input", () => {
+        if (!validarCorreo(correo.value)) {
+          mostrarError(correo, "Usa un correo @duoc.cl, @profesor.duoc.cl o @gmail.com.");
+        } else {
+          limpiarError(correo);
+        }
+      });
+
+      password.addEventListener("input", () => {
+        if (password.value.length < 4 || password.value.length > 10) {
+          mostrarError(password, "La contraseña debe tener entre 4 y 10 caracteres.");
+        } else {
+          limpiarError(password);
+        }
+      });
+
+      fechaNacimiento.addEventListener("change", () => {
+        if (fechaNacimiento.value && calcularEdad(fechaNacimiento.value) < 18) {
+          mostrarError(fechaNacimiento, "Debes ser mayor de 18 años para registrarte.");
+        } else {
+          limpiarError(fechaNacimiento);
+        }
+      });
+
+      direccion.addEventListener("input", () => {
+        if (direccion.value.trim() === "" || direccion.value.length > 300) {
+          mostrarError(direccion, "La dirección es requerida (máx. 300 caracteres).");
+        } else {
+          limpiarError(direccion);
+        }
+      });
+
+      form.addEventListener("submit", (evento) => {
+        evento.preventDefault();
+
+        run.dispatchEvent(new Event("input"));
+        nombre.dispatchEvent(new Event("input"));
+        apellidos.dispatchEvent(new Event("input"));
+        correo.dispatchEvent(new Event("input"));
+        password.dispatchEvent(new Event("input"));
+        direccion.dispatchEvent(new Event("input"));
+        if (fechaNacimiento.value) fechaNacimiento.dispatchEvent(new Event("change"));
+
+        const hayErrores = form.querySelectorAll(".form-group.invalid").length > 0;
+        const regionVacia = region.value === "";
+        const comunaVacia = comuna.value === "";
+
+        if (regionVacia) mostrarError(region, "Selecciona una región.");
+        else limpiarError(region);
+
+        if (comunaVacia) mostrarError(comuna, "Selecciona una comuna.");
+        else limpiarError(comuna);
+
+        if (!hayErrores && !regionVacia && !comunaVacia) {
+          const resultado = registrarUsuario({
+            run: run.value.trim().toUpperCase(),
+            nombre: nombre.value.trim(),
+            apellidos: apellidos.value.trim(),
+            correo: correo.value.trim(),
+            password: password.value,
+            fechaNacimiento: fechaNacimiento.value || null,
+            region: region.value,
+            comuna: comuna.value,
+            direccion: direccion.value.trim(),
+            tipoUsuario: "Cliente",
+            codigoReferido: document.getElementById("codigo-referido").value.trim() || null
+          });
+
+          if (!resultado.ok) {
+            mostrarError(run, resultado.error);
+            return;
+          }
+
+          document.getElementById("registro-exito").style.display = "block";
+          form.reset();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
