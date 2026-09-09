@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Producto | Admin Level-Up Gamer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <p class="logo">LEVEL<span>UP</span> GAMER</p>
+      <a href="index.html">Dashboard</a>
+      <a href="productos.html" class="active">Productos</a>
+      <a href="usuarios.html">Usuarios</a>
+      <a href="../index.html">Ver tienda</a>
+      <button class="btn-logout" id="btn-logout">Cerrar sesión</button>
+    </aside>
+
+    <main class="admin-main">
+      <h1 class="section-title" id="titulo-form" style="margin-top:0;">Nuevo producto</h1>
+
+      <form id="form-producto" class="form-card" style="margin:0;" novalidate>
+        <div class="form-group">
+          <label for="codigo">Código</label>
+          <input type="text" id="codigo" name="codigo" maxlength="15" required>
+          <span class="error-msg"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="nombre">Nombre</label>
+          <input type="text" id="nombre" name="nombre" maxlength="100" required>
+          <span class="error-msg"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="categoria">Categoría</label>
+          <select id="categoria" name="categoria" required>
+            <option value="Juegos de Mesa">Juegos de Mesa</option>
+            <option value="Accesorios">Accesorios</option>
+            <option value="Consolas">Consolas</option>
+            <option value="Computadores Gamers">Computadores Gamers</option>
+            <option value="Sillas Gamers">Sillas Gamers</option>
+            <option value="Mouse">Mouse</option>
+            <option value="Mousepad">Mousepad</option>
+            <option value="Poleras Personalizadas">Poleras Personalizadas</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="precio">Precio (CLP)</label>
+          <input type="number" id="precio" name="precio" min="0" step="1" required>
+          <span class="error-msg"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="stock">Stock disponible</label>
+          <input type="number" id="stock" name="stock" min="0" step="1" required>
+          <span class="error-msg"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="stock-critico">Stock crítico (alerta de bajo inventario, opcional)</label>
+          <input type="number" id="stock-critico" name="stock-critico" min="0" step="1">
+          <span class="error-msg"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="imagen">URL de imagen</label>
+          <input type="text" id="imagen" name="imagen" value="img/placeholder.png">
+        </div>
+
+        <div class="form-group">
+          <label for="descripcion">Descripción (opcional)</label>
+          <textarea id="descripcion" name="descripcion" rows="4" maxlength="500"></textarea>
+          <span class="error-msg"></span>
+        </div>
+
+        <div style="display:flex; gap:1rem;">
+          <button type="submit" class="btn btn-primary">Guardar</button>
+          <a href="productos.html" class="btn btn-ghost">Cancelar</a>
+        </div>
+      </form>
+    </main>
+  </div>
+
+  <script src="../js/products.js"></script>
+  <script src="../js/validaciones.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    protegerPaginaAdmin();
+
+    const params = new URLSearchParams(window.location.search);
+    const codigoEdicion = params.get("codigo");
+
+    const form = document.getElementById("form-producto");
+    const codigoInput = document.getElementById("codigo");
+    const nombre = document.getElementById("nombre");
+    const categoria = document.getElementById("categoria");
+    const precio = document.getElementById("precio");
+    const stock = document.getElementById("stock");
+    const stockCritico = document.getElementById("stock-critico");
+    const imagen = document.getElementById("imagen");
+    const descripcion = document.getElementById("descripcion");
+
+    if (codigoEdicion) {
+      const producto = obtenerProductos().find(p => p.codigo === codigoEdicion);
+      if (producto) {
+        document.getElementById("titulo-form").textContent = "Editar producto";
+        codigoInput.value = producto.codigo;
+        codigoInput.disabled = true;
+        nombre.value = producto.nombre;
+        categoria.value = producto.categoria;
+        precio.value = producto.precio;
+        stock.value = producto.stock;
+        stockCritico.value = producto.stockCritico ?? "";
+        imagen.value = producto.imagen;
+        descripcion.value = producto.descripcion;
+      }
+    }
+
+    form.addEventListener("submit", (evento) => {
+      evento.preventDefault();
+
+      if (nombre.value.trim() === "" || nombre.value.length > 100) {
+        return mostrarError(nombre, "El nombre es requerido (máx. 100 caracteres).");
+      }
+      limpiarError(nombre);
+
+      if (!codigoEdicion) {
+        const codigoLimpio = codigoInput.value.trim();
+        if (codigoLimpio.length < 3) {
+          return mostrarError(codigoInput, "El código debe tener al menos 3 caracteres.");
+        }
+        if (obtenerProductos().some(p => p.codigo === codigoLimpio)) {
+          return mostrarError(codigoInput, "Ya existe un producto con ese código.");
+        }
+      }
+      limpiarError(codigoInput);
+
+      if (precio.value === "" || Number(precio.value) < 0) {
+        return mostrarError(precio, "Ingresa un precio válido (mínimo 0).");
+      }
+      limpiarError(precio);
+
+      if (stock.value === "" || !Number.isInteger(Number(stock.value)) || Number(stock.value) < 0) {
+        return mostrarError(stock, "Ingresa un stock válido (número entero, mínimo 0).");
+      }
+      limpiarError(stock);
+
+      if (stockCritico.value !== "" && (!Number.isInteger(Number(stockCritico.value)) || Number(stockCritico.value) < 0)) {
+        return mostrarError(stockCritico, "El stock crítico debe ser un número entero mayor o igual a 0.");
+      }
+      limpiarError(stockCritico);
+
+      if (descripcion.value.length > 500) {
+        return mostrarError(descripcion, "La descripción no puede superar los 500 caracteres.");
+      }
+      limpiarError(descripcion);
+
+      guardarProducto({
+        codigo: codigoEdicion || codigoInput.value.trim(),
+        nombre: nombre.value.trim(),
+        categoria: categoria.value,
+        precio: Number(precio.value),
+        stock: Number(stock.value),
+        stockCritico: stockCritico.value !== "" ? Number(stockCritico.value) : 0,
+        imagen: imagen.value.trim() || "img/placeholder.png",
+        descripcion: descripcion.value.trim()
+      });
+
+      window.location.href = "productos.html";
+    });
+
+    document.getElementById("btn-logout").addEventListener("click", cerrarSesionAdmin);
+  </script>
+</body>
+</html>

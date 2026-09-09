@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Usuario | Admin Level-Up Gamer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <p class="logo">LEVEL<span>UP</span> GAMER</p>
+      <a href="index.html">Dashboard</a>
+      <a href="productos.html">Productos</a>
+      <a href="usuarios.html" class="active">Usuarios</a>
+      <a href="../index.html">Ver tienda</a>
+      <button class="btn-logout" id="btn-logout">Cerrar sesión</button>
+    </aside>
+
+    <main class="admin-main">
+      <h1 class="section-title" id="titulo-form" style="margin-top:0;">Nuevo usuario</h1>
+
+      <form id="form-usuario" class="form-card" style="margin:0;" novalidate>
+        <div class="form-group">
+          <label for="run">RUN (sin puntos ni guión, ej: 19011022K)</label>
+          <input type="text" id="run" name="run" maxlength="9" required>
+          <span class="error-msg"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="nombre">Nombre</label>
+          <input type="text" id="nombre" name="nombre" maxlength="50" required>
+          <span class="error-msg"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="apellidos">Apellidos</label>
+          <input type="text" id="apellidos" name="apellidos" maxlength="100" required>
+          <span class="error-msg"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="correo">Correo electrónico</label>
+          <input type="email" id="correo" name="correo" maxlength="100" required>
+          <span class="error-msg"></span>
+        </div>
+
+        <div class="form-group" id="grupo-password">
+          <label for="password">Contraseña (4 a 10 caracteres)</label>
+          <input type="password" id="password" name="password" maxlength="10">
+          <span class="error-msg"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="fecha-nacimiento">Fecha de nacimiento (opcional)</label>
+          <input type="date" id="fecha-nacimiento" name="fecha-nacimiento">
+        </div>
+
+        <div class="form-group">
+          <label for="tipo-usuario">Tipo de usuario</label>
+          <select id="tipo-usuario" name="tipo-usuario" required>
+            <option value="Cliente">Cliente</option>
+            <option value="Vendedor">Vendedor</option>
+            <option value="Administrador">Administrador</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="region">Región</label>
+          <select id="region" name="region" required>
+            <option value="">Selecciona una región</option>
+          </select>
+          <span class="error-msg"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="comuna">Comuna</label>
+          <select id="comuna" name="comuna" required>
+            <option value="">Primero selecciona una región</option>
+          </select>
+          <span class="error-msg"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="direccion">Dirección</label>
+          <input type="text" id="direccion" name="direccion" maxlength="300" required>
+          <span class="error-msg"></span>
+        </div>
+
+        <div style="display:flex; gap:1rem;">
+          <button type="submit" class="btn btn-primary">Guardar</button>
+          <a href="usuarios.html" class="btn btn-ghost">Cancelar</a>
+        </div>
+      </form>
+    </main>
+  </div>
+
+  <script src="../js/usuarios.js"></script>
+  <script src="../js/regiones.js"></script>
+  <script src="../js/validaciones.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    protegerPaginaAdmin();
+    inicializarSelectorRegiones();
+
+    const params = new URLSearchParams(window.location.search);
+    const runEdicion = params.get("run");
+
+    const form = document.getElementById("form-usuario");
+    const runInput = document.getElementById("run");
+    const nombre = document.getElementById("nombre");
+    const apellidos = document.getElementById("apellidos");
+    const correo = document.getElementById("correo");
+    const password = document.getElementById("password");
+    const tipoUsuario = document.getElementById("tipo-usuario");
+    const region = document.getElementById("region");
+    const comuna = document.getElementById("comuna");
+    const direccion = document.getElementById("direccion");
+    const fechaNacimiento = document.getElementById("fecha-nacimiento");
+
+    let usuarioExistente = null;
+
+    if (runEdicion) {
+      usuarioExistente = obtenerUsuarios().find(u => u.run === runEdicion);
+      if (!usuarioExistente) {
+        form.innerHTML = `<p>Usuario no encontrado. <a href="usuarios.html">Volver</a>.</p>`;
+      } else {
+        document.getElementById("titulo-form").textContent = "Editar usuario";
+        runInput.value = usuarioExistente.run;
+        runInput.disabled = true;
+        nombre.value = usuarioExistente.nombre;
+        apellidos.value = usuarioExistente.apellidos;
+        correo.value = usuarioExistente.correo;
+        tipoUsuario.value = usuarioExistente.tipoUsuario || "Cliente";
+        direccion.value = usuarioExistente.direccion;
+        fechaNacimiento.value = usuarioExistente.fechaNacimiento || "";
+        document.getElementById("grupo-password").querySelector("label").textContent =
+          "Nueva contraseña (dejar vacío para no cambiarla)";
+
+        setTimeout(() => {
+          region.value = usuarioExistente.region || "";
+          region.dispatchEvent(new Event("change"));
+          setTimeout(() => { comuna.value = usuarioExistente.comuna || ""; }, 0);
+        }, 0);
+      }
+    }
+
+    form.addEventListener("submit", (evento) => {
+        evento.preventDefault();
+
+        if (!runEdicion && !validarRun(runInput.value)) {
+          return mostrarError(runInput, "RUN inválido. Formato: 19011022K (sin puntos ni guión).");
+        }
+        limpiarError(runInput);
+
+        if (nombre.value.trim() === "") return mostrarError(nombre, "El nombre es requerido.");
+        limpiarError(nombre);
+
+        if (apellidos.value.trim() === "") return mostrarError(apellidos, "Los apellidos son requeridos.");
+        limpiarError(apellidos);
+
+        if (!validarCorreo(correo.value)) {
+          return mostrarError(correo, "Usa un correo @duoc.cl, @profesor.duoc.cl o @gmail.com.");
+        }
+        limpiarError(correo);
+
+        if (!runEdicion || password.value !== "") {
+          if (password.value.length < 4 || password.value.length > 10) {
+            return mostrarError(password, "La contraseña debe tener entre 4 y 10 caracteres.");
+          }
+        }
+        limpiarError(password);
+
+        if (region.value === "") return mostrarError(region, "Selecciona una región.");
+        limpiarError(region);
+
+        if (comuna.value === "") return mostrarError(comuna, "Selecciona una comuna.");
+        limpiarError(comuna);
+
+        if (direccion.value.trim() === "") return mostrarError(direccion, "La dirección es requerida.");
+        limpiarError(direccion);
+
+        if (runEdicion) {
+          const datosActualizados = {
+            nombre: nombre.value.trim(),
+            apellidos: apellidos.value.trim(),
+            correo: correo.value.trim(),
+            tipoUsuario: tipoUsuario.value,
+            region: region.value,
+            comuna: comuna.value,
+            direccion: direccion.value.trim(),
+            fechaNacimiento: fechaNacimiento.value || null
+          };
+          if (password.value !== "") datosActualizados.password = password.value;
+
+          actualizarUsuario(runEdicion, datosActualizados);
+        } else {
+          const resultado = registrarUsuario({
+            run: runInput.value.trim().toUpperCase(),
+            nombre: nombre.value.trim(),
+            apellidos: apellidos.value.trim(),
+            correo: correo.value.trim(),
+            password: password.value,
+            tipoUsuario: tipoUsuario.value,
+            region: region.value,
+            comuna: comuna.value,
+            direccion: direccion.value.trim(),
+            fechaNacimiento: fechaNacimiento.value || null
+          });
+
+          if (!resultado.ok) {
+            return mostrarError(runInput, resultado.error);
+          }
+        }
+
+        window.location.href = "usuarios.html";
+      });
+
+    document.getElementById("btn-logout").addEventListener("click", cerrarSesionAdmin);
+  </script>
+</body>
+</html>

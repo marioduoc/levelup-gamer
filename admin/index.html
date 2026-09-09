@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | Admin Level-Up Gamer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <p class="logo">LEVEL<span>UP</span> GAMER</p>
+      <a href="index.html" class="active">Dashboard</a>
+      <a href="productos.html">Productos</a>
+      <a href="usuarios.html">Usuarios</a>
+      <a href="../index.html">Ver tienda</a>
+      <button class="btn-logout" id="btn-logout">Cerrar sesión</button>
+    </aside>
+
+    <main class="admin-main">
+      <div class="admin-header">
+        <h1 class="section-title" style="margin:0;">Dashboard</h1>
+      </div>
+
+      <div class="admin-dashboard-cards">
+        <div class="dashboard-card">
+          <p class="numero" id="total-productos">0</p>
+          <p>Productos en catálogo</p>
+        </div>
+        <div class="dashboard-card">
+          <p class="numero" id="total-usuarios">0</p>
+          <p>Usuarios registrados</p>
+        </div>
+        <div class="dashboard-card">
+          <p class="numero" id="total-categorias">0</p>
+          <p>Categorías activas</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/products.js"></script>
+  <script src="../js/usuarios.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    protegerPaginaAdmin();
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const productosAdmin = obtenerProductos();
+      document.getElementById("total-productos").textContent = productosAdmin.length;
+      document.getElementById("total-usuarios").textContent = obtenerUsuarios().length;
+      document.getElementById("total-categorias").textContent =
+        new Set(productosAdmin.map(p => p.categoria)).size;
+    });
+
+    document.getElementById("btn-logout").addEventListener("click", cerrarSesionAdmin);
+  </script>
+</body>
+</html>

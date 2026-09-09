@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Usuarios | Admin Level-Up Gamer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <p class="logo">LEVEL<span>UP</span> GAMER</p>
+      <a href="index.html">Dashboard</a>
+      <a href="productos.html">Productos</a>
+      <a href="usuarios.html" class="active">Usuarios</a>
+      <a href="../index.html">Ver tienda</a>
+      <button class="btn-logout" id="btn-logout">Cerrar sesión</button>
+    </aside>
+
+    <main class="admin-main">
+      <div class="admin-header">
+        <h1 class="section-title" style="margin:0;">Usuarios registrados</h1>
+        <a href="usuario-form.html" class="btn btn-primary">+ Nuevo usuario</a>
+      </div>
+
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>RUN</th>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Región</th>
+            <th>Tipo</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-usuarios">
+        </tbody>
+      </table>
+    </main>
+  </div>
+
+  <script src="../js/usuarios.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    protegerPaginaAdmin();
+
+    function renderizarTablaUsuarios() {
+      const cuerpo = document.getElementById("tabla-usuarios");
+      const lista = obtenerUsuarios();
+
+      if (lista.length === 0) {
+        cuerpo.innerHTML = `<tr><td colspan="6">Aún no hay usuarios registrados.</td></tr>`;
+        return;
+      }
+
+      cuerpo.innerHTML = lista.map(u => `
+        <tr>
+          <td>${u.run}</td>
+          <td>${u.nombre} ${u.apellidos}</td>
+          <td>${u.correo}</td>
+          <td>${u.region || "—"}</td>
+          <td>${u.tipoUsuario || "Cliente"}</td>
+          <td class="acciones">
+            <a href="usuario-form.html?run=${encodeURIComponent(u.run)}" class="btn-sm btn-editar">Editar</a>
+            <button type="button" class="btn-sm btn-eliminar" data-run="${u.run}">Eliminar</button>
+          </td>
+        </tr>
+      `).join("");
+
+      cuerpo.querySelectorAll(".btn-eliminar").forEach(boton => {
+        boton.addEventListener("click", () => {
+          if (confirm("¿Eliminar este usuario?")) {
+            eliminarUsuario(boton.dataset.run);
+            renderizarTablaUsuarios();
+          }
+        });
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", renderizarTablaUsuarios);
+    document.getElementById("btn-logout").addEventListener("click", cerrarSesionAdmin);
+  </script>
+</body>
+</html>
