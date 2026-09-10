@@ -73,6 +73,7 @@
   <script src="js/products.js"></script>
   <script src="js/main.js"></script>
   <script src="js/validaciones.js"></script>
+  <script src="js/usuarios.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const form = document.getElementById("form-login");
@@ -108,8 +109,27 @@
         const hayErrores = form.querySelectorAll(".form-group.invalid").length > 0;
         if (hayErrores) return;
 
+        // Autentica contra los usuarios registrados (LocalStorage)
+        const usuario = obtenerUsuarios().find(
+          (u) => u.correo.toLowerCase() === correo.value.trim().toLowerCase() &&
+                 u.password === password.value
+        );
+
+        if (!usuario) {
+          loginError.style.display = "block";
+          return;
+        }
+
+        // Guarda la sesión (usada, por ejemplo, para el descuento Duoc en el carrito)
+        localStorage.setItem("levelup_sesion", JSON.stringify({
+          correo: usuario.correo,
+          nombre: usuario.nombre,
+          tipoUsuario: usuario.tipoUsuario
+        }));
+
         loginExito.style.display = "block";
         form.reset();
+        setTimeout(() => { window.location.href = "index.html"; }, 900);
       });
     });
   </script>

@@ -533,3 +533,9 @@ textarea:focus-visible,
     scroll-behavior: auto !important;
   }
 }
+
+/* Línea de descuento Duoc en el resumen del carrito */
+.cart-descuento {
+  color: var(--verde-neon);
+  font-weight: 500;
+}
