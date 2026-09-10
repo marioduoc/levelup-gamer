@@ -124,6 +124,24 @@ function renderizarDetalleProducto(contenedorId = "product-detail") {
   }
 }
 
+// Sesión de cliente y descuento de por vida del 20% para correos Duoc
+const SESION_KEY = "levelup_sesion";
+const DESCUENTO_DUOC = 0.20;
+
+function obtenerSesion() {
+  const data = localStorage.getItem(SESION_KEY);
+  return data ? JSON.parse(data) : null;
+}
+
+function cerrarSesion() {
+  localStorage.removeItem(SESION_KEY);
+}
+
+function tieneDescuentoDuoc() {
+  const sesion = obtenerSesion();
+  return !!(sesion && /@(duoc\.cl|profesor\.duoc\.cl)$/i.test(sesion.correo || ""));
+}
+
 function renderizarCarrito(contenedorId = "cart-container") {
   const contenedor = document.getElementById(contenedorId);
   if (!contenedor) return;
@@ -151,7 +169,10 @@ function renderizarCarrito(contenedorId = "cart-container") {
     </tr>
   `).join("");
 
-  const total = calcularTotalCarrito(carrito);
+  const subtotal = calcularTotalCarrito(carrito);
+  const aplicaDescuento = tieneDescuentoDuoc();
+  const descuento = aplicaDescuento ? Math.round(subtotal * DESCUENTO_DUOC) : 0;
+  const total = subtotal - descuento;
 
   contenedor.innerHTML = `
     <table class="cart-table">
@@ -167,6 +188,8 @@ function renderizarCarrito(contenedorId = "cart-container") {
       <tbody>${filas}</tbody>
     </table>
     <div class="cart-summary">
+      <p>Subtotal: <span class="price">${formatearPrecio(subtotal)}</span></p>
+      ${aplicaDescuento ? `<p class="cart-descuento">Descuento Duoc (20%): <span class="price">- ${formatearPrecio(descuento)}</span></p>` : ""}
       <p>Total: <span class="price">${formatearPrecio(total)}</span></p>
       <button type="button" class="btn btn-primary" id="btn-pagar">Proceder al pago</button>
     </div>
