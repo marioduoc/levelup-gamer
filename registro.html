@@ -67,7 +67,7 @@
 
       <div class="form-group">
         <label for="fecha-nacimiento">Fecha de nacimiento</label>
-        <input type="date" id="fecha-nacimiento" name="fecha-nacimiento">
+        <input type="date" id="fecha-nacimiento" name="fecha-nacimiento" required>
         <span class="error-msg"></span>
       </div>
 
@@ -176,7 +176,9 @@
       });
 
       fechaNacimiento.addEventListener("change", () => {
-        if (fechaNacimiento.value && calcularEdad(fechaNacimiento.value) < 18) {
+        if (fechaNacimiento.value === "") {
+          mostrarError(fechaNacimiento, "La fecha de nacimiento es requerida.");
+        } else if (calcularEdad(fechaNacimiento.value) < 18) {
           mostrarError(fechaNacimiento, "Debes ser mayor de 18 años para registrarte.");
         } else {
           limpiarError(fechaNacimiento);
@@ -200,7 +202,7 @@
         correo.dispatchEvent(new Event("input"));
         password.dispatchEvent(new Event("input"));
         direccion.dispatchEvent(new Event("input"));
-        if (fechaNacimiento.value) fechaNacimiento.dispatchEvent(new Event("change"));
+        fechaNacimiento.dispatchEvent(new Event("change"));
 
         const hayErrores = form.querySelectorAll(".form-group.invalid").length > 0;
         const regionVacia = region.value === "";
@@ -219,7 +221,7 @@
             apellidos: apellidos.value.trim(),
             correo: correo.value.trim(),
             password: password.value,
-            fechaNacimiento: fechaNacimiento.value || null,
+            fechaNacimiento: fechaNacimiento.value,
             region: region.value,
             comuna: comuna.value,
             direccion: direccion.value.trim(),
