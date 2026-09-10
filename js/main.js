@@ -239,7 +239,16 @@ function renderizarDetalleBlog(contenedorId = "blog-detail") {
   `;
 }
 
+// Actualiza el año del footer al año actual (evita tener que editarlo a mano)
+function actualizarAnioFooter() {
+  const anioActual = new Date().getFullYear();
+  document.querySelectorAll(".copyright").forEach((el) => {
+    el.textContent = el.textContent.replace(/\b\d{4}\b/, anioActual);
+  });
+}
+
 document.addEventListener("DOMContentLoaded", actualizarContadorCarrito);
+document.addEventListener("DOMContentLoaded", actualizarAnioFooter);
 window.addEventListener("pageshow", actualizarContadorCarrito);
 window.addEventListener("storage", (evento) => {
   if (evento.key === CARRITO_KEY) actualizarContadorCarrito();
