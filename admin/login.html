@@ -38,16 +38,65 @@
 
   <script src="js/admin.js"></script>
   <script>
-    document.getElementById("form-admin-login").addEventListener("submit", (evento) => {
+    const form = document.getElementById("form-admin-login");
+    const inputCorreo = document.getElementById("correo");
+    const inputPassword = document.getElementById("password");
+    const errorGeneral = document.getElementById("login-error");
+
+    function mostrarError(input, mensaje) {
+      const span = input.parentElement.querySelector(".error-msg");
+      if (span) span.textContent = mensaje;
+      input.setAttribute("aria-invalid", "true");
+    }
+
+    function limpiarErrores() {
+      form.querySelectorAll(".error-msg").forEach((s) => (s.textContent = ""));
+      [inputCorreo, inputPassword].forEach((i) => i.removeAttribute("aria-invalid"));
+      errorGeneral.style.display = "none";
+    }
+
+    // Al escribir de nuevo, se limpia el error de ese campo
+    [inputCorreo, inputPassword].forEach((input) => {
+      input.addEventListener("input", () => {
+        const span = input.parentElement.querySelector(".error-msg");
+        if (span) span.textContent = "";
+        input.removeAttribute("aria-invalid");
+        errorGeneral.style.display = "none";
+      });
+    });
+
+    form.addEventListener("submit", (evento) => {
       evento.preventDefault();
-      const correo = document.getElementById("correo").value.trim();
-      const password = document.getElementById("password").value;
-      const error = document.getElementById("login-error");
+      limpiarErrores();
+
+      const correo = inputCorreo.value.trim();
+      const password = inputPassword.value;
+      let primerInvalido = null;
+
+      if (correo === "") {
+        mostrarError(inputCorreo, "Ingresa tu correo.");
+        primerInvalido = primerInvalido || inputCorreo;
+      } else if (!inputCorreo.checkValidity()) {
+        mostrarError(inputCorreo, "El correo no tiene un formato válido.");
+        primerInvalido = primerInvalido || inputCorreo;
+      }
+
+      if (password === "") {
+        mostrarError(inputPassword, "Ingresa tu contraseña.");
+        primerInvalido = primerInvalido || inputPassword;
+      }
+
+      if (primerInvalido) {
+        primerInvalido.focus();
+        return;
+      }
 
       if (iniciarSesionAdmin(correo, password)) {
         window.location.href = "index.html";
       } else {
-        error.style.display = "block";
+        errorGeneral.style.display = "block";
+        inputPassword.value = "";
+        inputCorreo.focus();
       }
     });
   </script>
